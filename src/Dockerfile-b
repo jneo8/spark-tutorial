@@ -1,0 +1,28 @@
+FROM ubuntu
+
+ENV JAVA_VERSION=jdk1.8.0_191
+ARG JAVA_PKG_VERSION=jdk-8u191-linux-x64
+
+ENV JAVA_HOME=/opt/${JAVA_VERSION}
+ENV JRE_HOME=/opt/${JAVA_VERSION}/jre
+
+ENV PYSPARK_DRIVER_PYTHON=ipython
+
+ARG SPARK_VERSION=spark-2.4.0
+ARG SPARK_PKG_VERSION=${SPARK_VERSION}-bin-hadoop2.7
+ENV PATH="${PATH}:/opt/${JAVA_VERSION}/bin:/opt/${SPARK_PKG_VERSION}/bin"
+ENV PYSPARK_PYTHON=python3
+
+RUN apt-get update && \
+    apt-get -y install wget python3 curl python3-dev&& \
+    curl https://bootstrap.pypa.io/get-pip.py | python3 && \
+    pip install ipython && \
+    cd /opt/ && \
+    wget --no-cookies --no-check-certificate  --header "Cookie: oraclelicense=accept-securebackup-cookie" https://download.oracle.com/otn-pub/java/jdk/8u191-b12/2787e4a523244c269598db4e85c51e0c/$JAVA_PKG_VERSION.tar.gz && \
+    tar xvf $JAVA_PKG_VERSION.tar.gz && \
+    rm $JAVA_PKG_VERSION.tar.gz && \
+    wget https://archive.apache.org/dist/spark/$SPARK_VERSION/$SPARK_PKG_VERSION.tgz && \
+    tar xvf $SPARK_PKG_VERSION.tgz && \
+    rm $SPARK_PKG_VERSION.tgz && \
+    apt-get remove -y curl wget && \
+    apt-get clean
