@@ -10,8 +10,10 @@ RUN python3 -V
 ENV PYSPARK_PYTHON=python3
 ENV PYSPARK_DRIVER_PYTHON=python3
 
-COPY . /app
 WORKDIR /app
+COPY ./requirements.txt /app
 RUN pip3 install -r requirements.txt
+
+COPY . /app
 
 CMD ["python3", "/app/app.py"]
