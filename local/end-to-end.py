@@ -4,6 +4,9 @@ from pyspark.sql import SparkSession
 
 if __name__ == "__main__":
     spark = SparkSession.builder.master("local").appName("end-to-end").getOrCreate()
+
+    # set configuration
+    spark.conf.set("spark.sql.shuffle.partitions", "5")
     print(dir(spark))
     df = spark.read.csv(
         "/home/ubuntu/Spark-The-Definitive-Guide/data/flight-data/csv/2015-summary.csv",
@@ -11,6 +14,8 @@ if __name__ == "__main__":
         inferSchema=True,
     ).cache()
 
-    print(df.collect())
+    print(df.count())
     print(df.take(3))
+    print(df.sort("count").explain())
+    print(df.sort("count").take(3))
 
