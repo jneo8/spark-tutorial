@@ -1,5 +1,7 @@
 from pyspark import SparkConf, SparkContext
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import max
+import time
 
 
 if __name__ == "__main__":
@@ -7,15 +9,27 @@ if __name__ == "__main__":
 
     # set configuration
     spark.conf.set("spark.sql.shuffle.partitions", "5")
-    print(dir(spark))
     df = spark.read.csv(
-        "/home/ubuntu/Spark-The-Definitive-Guide/data/flight-data/csv/2015-summary.csv",
+        "/home/jameslin/Github-Project/Spark-The-Definitive-Guide/data/flight-data/csv/2015-summary.csv",
         header=True,
         inferSchema=True,
     ).cache()
 
-    print(df.count())
-    print(df.take(3))
-    print(df.sort("count").explain())
-    print(df.sort("count").take(3))
+    # Explain
+    df.sort("count").explain()
 
+    df.createOrReplaceTempView("flight_data_2015")
+
+    sql_way = spark.sql("""
+            SELECT DEST_COUNTRY_NAME, count(1)
+            FROM flight_data_2015
+            GROUP BY DEST_COUNTRY_NAME
+    """)
+
+    data_frame_way = df.groupBy("DEST_COUNTRY_NAME").count()
+
+    sql_way.explain()
+    data_frame_way.explain()
+
+    max_count = df.select(max("count")).take(1)
+    print(f"max coount: {max_count}")
